@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Aug 15 00:36:51 2020
-
-@author: dozie
-"""
-
 import urllib.request, urllib.parse, urllib.error
 import re
 import pandas as pd
