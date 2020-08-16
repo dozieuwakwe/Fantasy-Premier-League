@@ -75,6 +75,22 @@ df['Deadline Time']=df['Deadline Time'].str.replace('"','')
 df['Most Vice-Captained']=df['Most Vice-Captained'].str.replace('}','')
 df.to_excel("Gameweek Summaries.xlsx")
 
+def renamecolumns():
+    columns=[]
+    for i in list(df.iloc[0]):
+        title=i[:i.find(':')]
+        title=title.replace('"','')
+        title=title.replace('_',' ')
+        title=string.capwords(title)
+        columns.append(title)
+    df.columns=columns
+    
+def dataremoval():
+    for column in df.columns:
+        for i in range(0,len(df[column])):
+            df[column][i]=df[column][i][df[column][i].find(':')+1:]
+            df[column][i]=df[column][i].replace('"','')    
+
 #Teams
 data=re.findall('"code":.+?},', info)
 data=data[:20]
@@ -88,22 +104,8 @@ for i in data:
 df=pd.DataFrame(datadict)
 df=df.transpose()
 df=df.drop([0,5,11,12,20,21], axis=1)
-
-#renamed columns
-columns=[]
-for i in list(df.iloc[0]):
-    title=i[:i.find(':')]
-    title=title.replace('"','')
-    title=title.replace('_',' ')
-    title=string.capwords(title)
-    columns.append(title)
-df.columns=columns
-
-#removed unnecessary data in df cells
-for column in df.columns:
-    for i in range(0,len(df[column])):
-        df[column][i]=df[column][i][df[column][i].find(':')+1:]
-        df[column][i]=df[column][i].replace('"','')        
+renamecolumns()
+dataremoval()      
 
 df.to_excel("Teams.xlsx")
 
@@ -119,28 +121,15 @@ for i in data:
     
 df=pd.DataFrame(datadict)
 df=df.transpose()
-
-#renamed columns
-columns=[]
-for i in list(df.iloc[0]):
-    title=i[:i.find(':')]
-    title=title.replace('"','')
-    title=title.replace('_',' ')
-    title=string.capwords(title)
-    columns.append(title)
-df.columns=columns
-
-#removed unnecessary data in df cells
-for column in df.columns:
-    for i in range(0,len(df[column])):
-        df[column][i]=df[column][i][df[column][i].find(':')+1:]
-        df[column][i]=df[column][i].replace('"','')
+renamecolumns()
+dataremoval()
 
 df['Ict Index Rank Type']=df['Ict Index Rank Type'].str.replace('}','')
 df=df.drop(['Photo',''], axis=1)
 df.index.rename('Full Name', inplace=True)
 
 df.to_excel("Players Stats.xlsx")
+Playerstats=df
 
 #Player Performances
 Playerstats.reset_index(inplace=True)
@@ -148,7 +137,7 @@ Playerstats['Id']=Playerstats['Id'].astype(int)
 Playerstats.set_index('Id', inplace=True)
 perfdb=pd.DataFrame()
 
-for j in [11,12]:
+for j in list(Playerstats.index):
     url='https://fantasy.premierleague.com/api/element-summary/'
     url=url+str(j)+'/'
     
@@ -165,22 +154,8 @@ for j in [11,12]:
         
     df=pd.DataFrame(datadict)
     df=df.transpose()
-    
-    #renamed columns
-    columns=[]
-    for i in list(df.iloc[0]):
-        title=i[:i.find(':')]
-        title=title.replace('"','')
-        title=title.replace('_',' ')
-        title=string.capwords(title)
-        columns.append(title)
-    df.columns=columns
-    
-    #removed unnecessary data in df cells
-    for column in df.columns:
-        for i in range(0,len(df[column])):
-            df[column][i]=df[column][i][df[column][i].find(':')+1:]
-            df[column][i]=df[column][i].replace('"','')
+    renamecolumns()
+    dataremoval()     
     df['Transfers Out']=df['Transfers Out'].str.replace('}','')
     
     name=Playerstats.loc[j,'Full Name']
@@ -188,4 +163,4 @@ for j in [11,12]:
     perfdb=pd.concat([perfdb,df])
 
 perfdb.set_index('Index', inplace=True)    
-perfdb.to_excel("Player Performances.xlsx")
+perfdb.to_excel("Player Performance DB.xlsx")
